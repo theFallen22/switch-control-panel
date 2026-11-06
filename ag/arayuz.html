@@ -1,0 +1,395 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kontrol Merkezi</title>
+<style>
+:root{--bg:#f5f5f3;--kart:#fff;--yazi:#1d1d1b;--soluk:#6b6b66;--cizgi:#e3e2dc;--vurgu:#0f7b6c;--vurgu2:#e1f4ef;--uyari:#b4690e;--tehlike:#c0392b;--r:10px}
+@media (prefers-color-scheme:dark){:root{--bg:#161615;--kart:#20201e;--yazi:#ecebe6;--soluk:#a3a29b;--cizgi:#34342f;--vurgu:#3cc3a6;--vurgu2:#173a33;--uyari:#e3a14a;--tehlike:#e56b5d}}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--yazi)}
+header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--cizgi);background:var(--kart);position:sticky;top:0;z-index:5}
+header h1{font-size:17px;font-weight:600;margin:0}
+header .oyun{color:var(--soluk);font-size:13px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+main{max-width:1080px;margin:0 auto;padding:20px}
+button,.dugme{font:inherit;font-size:14px;padding:7px 14px;border-radius:8px;border:1px solid var(--cizgi);background:var(--kart);color:var(--yazi);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+button:hover,.dugme:hover{border-color:var(--soluk)}
+button.ana{background:var(--vurgu);border-color:var(--vurgu);color:#fff}
+button:disabled{opacity:.45;cursor:default}
+.sekmeler{display:flex;gap:4px;margin-bottom:18px;border-bottom:1px solid var(--cizgi)}
+.sekmeler button{border:0;border-bottom:2px solid transparent;border-radius:0;background:none;padding:9px 14px;color:var(--soluk)}
+.sekmeler button.secili{color:var(--yazi);border-bottom-color:var(--vurgu)}
+.gizli{display:none!important}
+.giris{max-width:340px;margin:12vh auto;background:var(--kart);border:1px solid var(--cizgi);border-radius:14px;padding:28px;text-align:center}
+.giris h2{margin:0 0 6px;font-size:20px}
+.giris p{color:var(--soluk);font-size:14px;margin:0 0 18px}
+.giris input{width:100%;font-size:28px;letter-spacing:10px;text-align:center;padding:10px;border-radius:10px;border:1px solid var(--cizgi);background:var(--bg);color:var(--yazi);margin-bottom:12px}
+.giris button{width:100%;justify-content:center;padding:10px}
+.hata{color:var(--tehlike);font-size:13px;min-height:20px;margin-top:8px}
+.izgara{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.kart{background:var(--kart);border:1px solid var(--cizgi);border-radius:var(--r);padding:14px 16px}
+.kart .etiket{font-size:13px;color:var(--soluk)}
+.kart .deger{font-size:28px;font-weight:600;margin-top:2px}
+.kart .alt{font-size:13px;color:var(--soluk)}
+.kart.genis{grid-column:span 2}
+.kart.genis .deger{font-size:22px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:460px){.kart.genis{grid-column:auto}}
+.yesil{color:var(--vurgu)}.sari{color:var(--uyari)}.kirmizi{color:var(--tehlike)}
+.arac{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:12px}
+.yolcubugu{display:flex;flex-wrap:wrap;gap:2px;align-items:center;flex:1;font-size:14px}
+.yolcubugu a{color:var(--vurgu);text-decoration:none;padding:2px 4px;border-radius:4px;cursor:pointer}
+.yolcubugu a:hover{background:var(--vurgu2)}
+.liste{background:var(--kart);border:1px solid var(--cizgi);border-radius:var(--r);overflow:hidden}
+.satir{display:grid;grid-template-columns:28px 1fr 100px 150px 150px;gap:8px;align-items:center;padding:8px 14px;border-top:1px solid var(--cizgi);font-size:14px}
+.satir:first-child{border-top:0}
+.satir.baslik{color:var(--soluk);font-size:12px;background:var(--bg)}
+.satir .ad{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.satir .ad a{color:var(--yazi);text-decoration:none;cursor:pointer}
+.satir .ad a:hover{color:var(--vurgu)}
+.satir .islem{display:flex;gap:6px;justify-content:flex-end}
+.satir .islem button,.satir .islem .dugme{padding:3px 9px;font-size:13px}
+.soluk{color:var(--soluk)}
+.not{font-size:13px;color:var(--uyari);margin:0 0 10px}
+.bos{padding:30px;text-align:center;color:var(--soluk)}
+.surukle{position:fixed;inset:0;background:color-mix(in srgb,var(--vurgu) 18%,transparent);border:3px dashed var(--vurgu);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:600;color:var(--vurgu);z-index:20;pointer-events:none}
+.ilerleme{background:var(--kart);border:1px solid var(--cizgi);border-radius:var(--r);padding:10px 14px;margin-bottom:12px;font-size:13px}
+.ilerleme .cubuk{height:6px;background:var(--cizgi);border-radius:3px;margin-top:6px;overflow:hidden}
+.ilerleme .cubuk div{height:100%;background:var(--vurgu);width:0}
+.album{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+.foto{position:relative;aspect-ratio:16/9;background:var(--cizgi);border-radius:8px;overflow:hidden;cursor:pointer;border:2px solid transparent}
+.foto img{width:100%;height:100%;object-fit:cover;display:block;color:transparent}
+.foto.bozuk::after{content:"Önizleme yok";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--soluk)}
+.foto.secili{border-color:var(--vurgu)}
+.foto .rozet{position:absolute;left:6px;bottom:6px;background:rgba(0,0,0,.65);color:#fff;font-size:11px;padding:1px 6px;border-radius:4px}
+.foto .tik{position:absolute;right:6px;top:6px;width:22px;height:22px;border-radius:50%;background:rgba(0,0,0,.45);border:2px solid #fff;display:none}
+.secim .foto .tik{display:block}
+.foto.secili .tik{background:var(--vurgu)}
+.foto .yeni{position:absolute;left:6px;top:6px;background:var(--vurgu);color:#fff;font-size:11px;padding:1px 6px;border-radius:4px}
+.perde{position:fixed;inset:0;background:rgba(0,0,0,.88);display:flex;align-items:center;justify-content:center;z-index:30;flex-direction:column;gap:12px}
+.perde img,.perde video{max-width:94vw;max-height:84vh;border-radius:6px}
+.perde .arac{margin:0}
+.bildirim{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--yazi);color:var(--bg);padding:9px 16px;border-radius:8px;font-size:14px;z-index:40;max-width:90vw}
+@media (max-width:700px){.satir{grid-template-columns:24px 1fr 90px}.satir .tarih,.satir .islem{display:none}}
+</style>
+</head>
+<body>
+<header class="gizli" id="ust">
+  <h1>Kontrol Merkezi</h1>
+  <span class="oyun" id="ustOyun"></span>
+  <button id="cikisDugme">Çıkış</button>
+</header>
+
+<section class="giris gizli" id="girisEkrani">
+  <h2>Switch'e bağlan</h2>
+  <p>Kontrol Merkezi → Mac bağlantısı ekranındaki 6 haneli PIN'i gir.</p>
+  <form id="girisForm">
+    <input id="pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="••••••" autofocus>
+    <button class="ana" type="submit">Bağlan</button>
+    <div class="hata" id="girisHata"></div>
+  </form>
+</section>
+
+<main class="gizli" id="uygulama">
+  <nav class="sekmeler">
+    <button data-sekme="durum" class="secili">Durum</button>
+    <button data-sekme="dosyalar">Dosyalar</button>
+    <button data-sekme="album">Albüm</button>
+  </nav>
+
+  <section id="durum">
+    <div class="izgara" id="durumIzgara"></div>
+    <p class="soluk" style="font-size:13px;margin-top:14px" id="durumNot"></p>
+  </section>
+
+  <section id="dosyalar" class="gizli">
+    <div class="arac">
+      <div class="yolcubugu" id="yolcubugu"></div>
+      <button id="yeniKlasor">Yeni klasör</button>
+      <button class="ana" id="yukleDugme">Dosya yükle</button>
+      <input type="file" id="dosyaSec" multiple class="gizli">
+    </div>
+    <p class="not gizli" id="korumaNot">Bu klasör korumalı: buraya yükleme ve silme kapalı.</p>
+    <div id="ilerlemeler"></div>
+    <div class="liste" id="liste"></div>
+  </section>
+
+  <section id="album" class="gizli">
+    <div class="arac">
+      <span class="soluk" style="flex:1" id="albumBilgi"></span>
+      <button id="yenileriIndir" class="ana">Yenileri indir</button>
+      <button id="secimModu">Seç</button>
+      <button id="seciliIndir" class="gizli">Seçilenleri indir</button>
+      <button id="seciliSil" class="gizli">Seçilenleri sil</button>
+    </div>
+    <div class="album" id="albumIzgara"></div>
+    <div style="text-align:center;margin-top:16px"><button id="dahaFazla" class="gizli">Daha fazla</button></div>
+  </section>
+</main>
+
+<div class="surukle gizli" id="surukle">Bırak, Switch'e yüklensin</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const el = (etiket, sinif, metin) => { const e = document.createElement(etiket); if (sinif) e.className = sinif; if (metin != null) e.textContent = metin; return e; };
+const kodla = encodeURIComponent;
+let durumZamanlayici = null, aktifSekme = 'durum', aktifYol = '/', yazilabilir = true;
+
+function bildir(m) {
+  const b = el('div', 'bildirim', m); document.body.appendChild(b);
+  setTimeout(() => b.remove(), 3200);
+}
+function boyutMetni(b) {
+  if (b < 1024) return b + ' B';
+  const b1 = ['KB','MB','GB']; let i = -1;
+  do { b /= 1024; i++; } while (b >= 1024 && i < 2);
+  return b.toFixed(b < 10 ? 1 : 0) + ' ' + b1[i];
+}
+function tarihMetni(t) {
+  if (!t) return '';
+  return new Date(t * 1000).toLocaleString('tr-TR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+}
+async function api(yol, ayar = {}) {
+  const c = await fetch(yol, { credentials: 'same-origin', ...ayar });
+  if (c.status === 401 && !yol.endsWith('/giris')) { girisGoster(); throw new Error('Giriş gerekli'); }
+  const v = await c.json().catch(() => ({}));
+  if (!c.ok) { const h = new Error(v.hata || ('Hata ' + c.status)); h.kod = c.status; throw h; }
+  return v;
+}
+
+// ── Giriş ──
+function girisGoster() {
+  clearInterval(durumZamanlayici);
+  $('#ust').classList.add('gizli'); $('#uygulama').classList.add('gizli');
+  $('#girisEkrani').classList.remove('gizli'); $('#pin').value = ''; $('#pin').focus();
+}
+function uygulamaGoster() {
+  $('#girisEkrani').classList.add('gizli');
+  $('#ust').classList.remove('gizli'); $('#uygulama').classList.remove('gizli');
+  sekmeAc(aktifSekme);
+}
+$('#girisForm').addEventListener('submit', async e => {
+  e.preventDefault();
+  const pin = $('#pin').value.trim();
+  $('#girisHata').textContent = '';
+  if (!/^[0-9]{6}$/.test(pin)) { $('#girisHata').textContent = 'PIN 6 rakamdan oluşur'; return; }
+  try {
+    await api('/api/giris', { method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:'pin=' + pin });
+    uygulamaGoster();
+  } catch (h) { $('#girisHata').textContent = h.message; $('#pin').select(); }
+});
+$('#pin').addEventListener('input', () => { $('#girisHata').textContent = ''; });
+$('#cikisDugme').addEventListener('click', async () => { await fetch('/api/cikis', { method:'POST' }); girisGoster(); });
+
+// ── Sekmeler ──
+document.querySelectorAll('.sekmeler button').forEach(b => b.addEventListener('click', () => sekmeAc(b.dataset.sekme)));
+function sekmeAc(ad) {
+  aktifSekme = ad;
+  document.querySelectorAll('.sekmeler button').forEach(b => b.classList.toggle('secili', b.dataset.sekme === ad));
+  ['durum','dosyalar','album'].forEach(s => $('#' + s).classList.toggle('gizli', s !== ad));
+  clearInterval(durumZamanlayici);
+  if (ad === 'durum') { durumYenile(); durumZamanlayici = setInterval(durumYenile, 2000); }
+  if (ad === 'dosyalar') klasorAc(aktifYol);
+  if (ad === 'album') albumYukle(true);
+}
+
+// ── Durum ──
+function kart(etiket, deger, alt, renk, genis) {
+  const k = el('div', 'kart' + (genis ? ' genis' : ''));
+  k.append(el('div', 'etiket', etiket), el('div', 'deger ' + (renk || ''), deger), el('div', 'alt', alt || ''));
+  return k;
+}
+const yoksa = (v, f) => v == null ? '–' : f(v);
+async function durumYenile() {
+  let d;
+  try { d = await api('/api/durum'); } catch { return; }
+  const oyun = d.oyun || (d.tid !== '0000000000000000' ? d.tid : 'Ana menü');
+  $('#ustOyun').textContent = oyun;
+  const sicakRenk = d.soc == null ? '' : d.soc < 55 ? 'yesil' : d.soc < 65 ? 'sari' : 'kirmizi';
+  const pilRenk = d.pil == null ? '' : d.pil > 30 ? 'yesil' : d.pil > 15 ? 'sari' : 'kirmizi';
+  const izgara = $('#durumIzgara');
+  izgara.replaceChildren(
+    kart('Açık oyun', oyun, d.tid !== '0000000000000000' ? d.tid : '', '', true),
+    kart('Batarya', yoksa(d.pil, v => '%' + v), (d.sarj ? 'Şarj oluyor' : 'Pilde') + yoksa(d.guc, v => ' · ' + (v > 0 ? '+' : '') + v + ' W'), pilRenk),
+    kart('SoC sıcaklığı', yoksa(d.soc, v => v + '°C'), yoksa(d.pcb, v => 'PCB ' + v + '°C'), sicakRenk),
+    kart('Fan', yoksa(d.fan, v => '%' + v), ''),
+    kart('CPU / GPU', yoksa(d.cpu, v => v + ' / ' + d.gpu), 'MHz'),
+    kart('Bellek', yoksa(d.mem, v => v + ' MHz'), yoksa(d.ram, v => 'RAM yükü %' + v))
+  );
+  $('#durumNot').textContent = d.otokapat > 0 ? `Bağlantı ${d.otokapat} dakika hareketsiz kalırsa kendiliğinden kapanır.` : '';
+}
+
+// ── Dosyalar ──
+function yolBirlestir(a, b) { return (a === '/' ? '' : a) + '/' + b; }
+async function klasorAc(yol) {
+  let v;
+  try { v = await api('/api/liste?yol=' + kodla(yol)); }
+  catch (h) { bildir(h.message); if (yol !== '/') klasorAc('/'); return; }
+  aktifYol = v.yol; yazilabilir = v.yazilabilir;
+  $('#korumaNot').classList.toggle('gizli', yazilabilir);
+  $('#yukleDugme').disabled = !yazilabilir; $('#yeniKlasor').disabled = !yazilabilir;
+
+  const yc = $('#yolcubugu'); yc.replaceChildren();
+  const kok = el('a', '', 'SD kart'); kok.onclick = () => klasorAc('/'); yc.append(kok);
+  let birikim = '';
+  v.yol.split('/').filter(Boolean).forEach(p => {
+    birikim += '/' + p; const hedef = birikim;
+    yc.append(el('span', 'soluk', '/'));
+    const a = el('a', '', p); a.onclick = () => klasorAc(hedef); yc.append(a);
+  });
+
+  const liste = $('#liste'); liste.replaceChildren();
+  const b = el('div', 'satir baslik');
+  b.append(el('span'), el('span', '', 'Ad'), el('span', '', 'Boyut'), el('span', 'tarih', 'Değiştirilme'), el('span'));
+  liste.append(b);
+  if (!v.ogeler.length) { liste.append(el('div', 'bos', 'Bu klasör boş')); return; }
+  for (const o of v.ogeler) {
+    const s = el('div', 'satir'), tam = yolBirlestir(v.yol, o.ad);
+    s.append(el('span', '', o.klasor ? '📁' : '📄'));
+    const ad = el('span', 'ad'), a = el('a', '', o.ad);
+    if (o.klasor) a.onclick = () => klasorAc(tam);
+    else a.href = '/indir?yol=' + kodla(tam);
+    ad.append(a); s.append(ad);
+    s.append(el('span', 'soluk', o.klasor ? '' : boyutMetni(o.boyut)), el('span', 'soluk tarih', tarihMetni(o.zaman)));
+    const islem = el('span', 'islem');
+    if (!o.klasor) { const ind = el('a', 'dugme', 'İndir'); ind.href = '/indir?yol=' + kodla(tam); islem.append(ind); }
+    if (yazilabilir) {
+      const sil = el('button', '', 'Sil');
+      sil.onclick = () => ogeSil(tam, o.klasor);
+      islem.append(sil);
+    }
+    s.append(islem); liste.append(s);
+  }
+}
+async function ogeSil(yol, klasor) {
+  const ad = yol.split('/').pop();
+  if (!confirm(`"${ad}" ${klasor ? 'klasörü (boşsa)' : 'dosyası'} silinsin mi? Bu geri alınamaz.`)) return;
+  try { await api('/api/sil?yol=' + kodla(yol), { method:'POST' }); bildir('Silindi'); klasorAc(aktifYol); }
+  catch (h) { bildir(h.message); }
+}
+$('#yeniKlasor').onclick = async () => {
+  const ad = prompt('Yeni klasörün adı'); if (!ad) return;
+  if (/[\/\\:]/.test(ad) || ad === '.' || ad === '..') { bildir('Geçersiz ad'); return; }
+  try { await api('/api/klasor?yol=' + kodla(yolBirlestir(aktifYol, ad)), { method:'POST' }); klasorAc(aktifYol); }
+  catch (h) { bildir(h.message); }
+};
+$('#yukleDugme').onclick = () => $('#dosyaSec').click();
+$('#dosyaSec').onchange = e => { dosyalariYukle([...e.target.files]); e.target.value = ''; };
+
+function tekYukle(dosya, hedef, uzerine) {
+  return new Promise((coz, red) => {
+    const kutu = el('div', 'ilerleme'), yazi = el('div', '', `${dosya.name} · ${boyutMetni(dosya.size)}`), cubuk = el('div', 'cubuk'), dolgu = el('div');
+    cubuk.append(dolgu); kutu.append(yazi, cubuk); $('#ilerlemeler').append(kutu);
+    const x = new XMLHttpRequest();
+    x.open('POST', '/yukle?yol=' + kodla(hedef) + (uzerine ? '&uzerine=1' : ''));
+    x.upload.onprogress = e => { if (e.lengthComputable) dolgu.style.width = (100 * e.loaded / e.total) + '%'; };
+    x.onload = () => {
+      kutu.remove();
+      let v = {}; try { v = JSON.parse(x.responseText); } catch {}
+      if (x.status === 201) coz();
+      else { const h = new Error(v.hata || ('Hata ' + x.status)); h.kod = x.status; red(h); }
+    };
+    x.onerror = () => { kutu.remove(); red(new Error('Bağlantı koptu')); };
+    x.send(dosya);
+  });
+}
+async function dosyalariYukle(dosyalar) {
+  if (!yazilabilir) { bildir('Bu klasör korumalı'); return; }
+  let tamam = 0;
+  for (const d of dosyalar) {
+    const hedef = yolBirlestir(aktifYol, d.name);
+    try { await tekYukle(d, hedef, false); tamam++; }
+    catch (h) {
+      if (h.kod === 409 && h.message.includes('zaten') && confirm(`"${d.name}" zaten var. Üzerine yazılsın mı?`)) {
+        try { await tekYukle(d, hedef, true); tamam++; } catch (h2) { bildir(h2.message); }
+      } else if (h.kod !== 401) bildir(`${d.name}: ${h.message}`);
+    }
+  }
+  if (tamam) bildir(`${tamam} dosya yüklendi`);
+  klasorAc(aktifYol);
+}
+let surukleSayac = 0;
+addEventListener('dragenter', e => { if (aktifSekme !== 'dosyalar' || !e.dataTransfer.types.includes('Files')) return; surukleSayac++; $('#surukle').classList.remove('gizli'); });
+addEventListener('dragleave', () => { if (--surukleSayac <= 0) { surukleSayac = 0; $('#surukle').classList.add('gizli'); } });
+addEventListener('dragover', e => e.preventDefault());
+addEventListener('drop', e => {
+  e.preventDefault(); surukleSayac = 0; $('#surukle').classList.add('gizli');
+  if (aktifSekme === 'dosyalar' && e.dataTransfer.files.length) dosyalariYukle([...e.dataTransfer.files]);
+});
+
+// ── Albüm ──
+let albumOgeler = [], albumToplam = 0, secimAcik = false;
+const secili = new Set();
+const sonIndirilen = () => localStorage.getItem('km-son-album') || '';
+const dosyaAdi = y => y.split('/').pop();
+async function albumYukle(bastan) {
+  if (bastan) { albumOgeler = []; secili.clear(); $('#albumIzgara').replaceChildren(); }
+  let v;
+  try { v = await api(`/api/album?bas=${albumOgeler.length}&adet=60`); } catch (h) { bildir(h.message); return; }
+  albumToplam = v.toplam;
+  const son = sonIndirilen();
+  for (const o of v.ogeler) {
+    albumOgeler.push(o);
+    const f = el('div', 'foto'), url = '/indir?yol=' + kodla(o.yol) + '&goster=1';
+    if (!o.video) { const i = el('img'); i.loading = 'lazy'; i.src = url; i.alt = ''; i.onerror = () => f.classList.add('bozuk'); f.append(i); }
+    else f.append(el('div', 'soluk', ''));
+    if (o.video) f.append(el('span', 'rozet', '▶ video'));
+    if (dosyaAdi(o.yol) > son) f.append(el('span', 'yeni', 'yeni'));
+    f.append(el('span', 'tik'));
+    f.onclick = () => {
+      if (secimAcik) { secili.has(o.yol) ? secili.delete(o.yol) : secili.add(o.yol); f.classList.toggle('secili'); secimSay(); }
+      else perdeAc(o, url);
+    };
+    $('#albumIzgara').append(f);
+  }
+  $('#albumBilgi').textContent = albumToplam ? `${albumToplam} öğe · en yeniler üstte` : 'Albüm boş';
+  $('#dahaFazla').classList.toggle('gizli', albumOgeler.length >= albumToplam);
+}
+function secimSay() { $('#seciliIndir').textContent = `Seçilenleri indir (${secili.size})`; $('#seciliSil').textContent = `Sil (${secili.size})`; }
+$('#dahaFazla').onclick = () => albumYukle(false);
+$('#secimModu').onclick = () => {
+  secimAcik = !secimAcik; $('#albumIzgara').parentElement.classList.toggle('secim', secimAcik);
+  $('#secimModu').textContent = secimAcik ? 'Seçimi bitir' : 'Seç';
+  ['#seciliIndir','#seciliSil'].forEach(s => $(s).classList.toggle('gizli', !secimAcik));
+  if (!secimAcik) { secili.clear(); document.querySelectorAll('.foto.secili').forEach(f => f.classList.remove('secili')); }
+  secimSay();
+};
+function indir(yol) { const a = el('a'); a.href = '/indir?yol=' + kodla(yol); a.download = dosyaAdi(yol); document.body.append(a); a.click(); a.remove(); }
+async function topluIndir(yollar) {
+  for (const y of yollar) { indir(y); await new Promise(r => setTimeout(r, 450)); }
+}
+$('#seciliIndir').onclick = () => { if (secili.size) topluIndir([...secili]); };
+$('#seciliSil').onclick = async () => {
+  if (!secili.size || !confirm(`${secili.size} öğe Switch albümünden silinsin mi? Geri alınamaz.`)) return;
+  for (const y of secili) { try { await api('/api/sil?yol=' + kodla(y), { method:'POST' }); } catch (h) { bildir(h.message); } }
+  bildir('Silindi'); albumYukle(true);
+};
+$('#yenileriIndir').onclick = async () => {
+  // Tüm albümü dolaşmadan önce yüklenmemiş sayfaları da getir
+  while (albumOgeler.length < albumToplam) { const once = albumOgeler.length; await albumYukle(false); if (albumOgeler.length === once) break; }
+  const son = sonIndirilen();
+  const yeniler = albumOgeler.filter(o => dosyaAdi(o.yol) > son).map(o => o.yol);
+  if (!yeniler.length) { bildir('Yeni ekran görüntüsü yok'); return; }
+  if (yeniler.length > 20 && !confirm(`${yeniler.length} yeni öğe indirilecek. Devam?`)) return;
+  await topluIndir(yeniler.reverse());
+  localStorage.setItem('km-son-album', dosyaAdi(albumOgeler[0].yol));
+  bildir(`${yeniler.length} öğe indirildi`);
+  albumYukle(true);
+};
+function perdeAc(o, url) {
+  const p = el('div', 'perde');
+  const medya = o.video ? Object.assign(el('video'), { src:url, controls:true, autoplay:true }) : Object.assign(el('img'), { src:url });
+  medya.onclick = e => e.stopPropagation();
+  const arac = el('div', 'arac'), ind = el('button', 'ana', 'İndir'), kapat = el('button', '', 'Kapat');
+  ind.onclick = e => { e.stopPropagation(); indir(o.yol); };
+  arac.append(ind, kapat); p.append(medya, arac);
+  p.onclick = () => p.remove();
+  document.body.append(p);
+}
+addEventListener('keydown', e => { if (e.key === 'Escape') document.querySelector('.perde')?.remove(); });
+
+// ── Başlangıç ──
+api('/api/durum').then(uygulamaGoster).catch(() => {});
+</script>
+</body>
+</html>
