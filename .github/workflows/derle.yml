@@ -1,0 +1,38 @@
+name: Derle
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  derle:
+    runs-on: ubuntu-latest
+    container: devkitpro/devkita64:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Gerekli kütüphaneler
+        run: dkp-pacman -S --noconfirm --needed switch-curl switch-zlib switch-mbedtls switch-minizip || true
+
+      - name: libultrahand
+        run: bash kur.sh
+
+      - name: Overlay'i derle
+        run: make
+
+      - name: Fan modülünü derle
+        run: make -C sysmodule
+
+      - name: Mac bağlantı modülünü derle
+        run: make -C ag
+
+      - name: SD paketini hazırla
+        run: bash paketle.sh
+
+      - name: Çıktıyı yükle
+        uses: actions/upload-artifact@v4
+        with:
+          name: kontrol-merkezi
+          path: out/
+          include-hidden-files: true
+          if-no-files-found: error
